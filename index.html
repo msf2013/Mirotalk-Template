@@ -135,14 +135,16 @@
     <input type="text" id="username" placeholder="Username" autofocus>
     <input type="password" id="pass" placeholder="Password">
     <input type="text" id="roomName" placeholder="Room Name" value="project72">
-    <label><input type="checkbox" id="videoCheckbox" checked> Enable Video</label>
-    <label><input type="checkbox" id="audioCheckbox" checked> Enable Audio</label>
+    
     <select id="themeSelect">
       <option value="rainbow">Rainbow Glow</option>
       <option value="custom">Custom Color</option>
       <option value="none">No Glow</option>
     </select>
-
+    <div class="checkbox-container" style="display:flex; justify-content:space-between; gap:10px; margin-top:10px;">
+      <label><input type="checkbox" id="videoCheckbox" checked> Video</label>
+      <label><input type="checkbox" id="audioCheckbox" checked> Audio</label>
+    </div>
     <div class="color-picker-container" id="colorPickerContainer" style="display:none;">
       <label for="glowColor">Glow Color:</label>
       <input type="color" id="glowColor" value="#00ff99">
@@ -159,7 +161,7 @@
 <script>
 // ===== LOGIN =====
 function checkLogin() {
-  const validPass = "P72"; // change password here
+  const validPass = "p72"; // change password here
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("pass").value;
   const roomName = document.getElementById("roomName").value.trim() || "project72";
