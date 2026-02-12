@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project72 Home</title>
+<style>
+  * { box-sizing: border-box; margin:0; padding:0; }
+
+  body, html {
+    height: 100%;
+    font-family: "Courier New", monospace;
+    background: black;
+    overflow: hidden;
+    color: #00ff99;
+  }
+
+  canvas {
+    position: absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    z-index:0;
+  }
+
+  .box {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(10px);
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .login-card {
+    width: 320px;
+    padding: 35px;
+    text-align: center;
+    border-radius: 10px;
+    background: rgba(0, 20, 0, 0.85);
+    border: 1px solid #00ff99;
+    box-shadow: 0 0 20px #00ff99;
+    animation: fadeIn 0.8s ease;
+  }
+
+  h2 {
+    margin-bottom: 20px;
+    text-shadow: 0 0 8px #00ff99;
+  }
+
+  input, select {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    background: black;
+    border: 1px solid #00ff99;
+    color: #00ff99;
+    outline: none;
+    font-family: inherit;
+    transition: 0.3s;
+  }
+
+  input:focus, select:focus {
+    box-shadow: 0 0 10px #00ff99;
+  }
+
+  button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 15px;
+    background: black;
+    border: 1px solid #00ff99;
+    color: #00ff99;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+  }
+
+  button:hover {
+    background: #00ff99;
+    color: black;
+    box-shadow: 0 0 15px #00ff99;
+  }
+
+  #error {
+    color: #ff4444;
+    margin-top: 10px;
+  }
+
+  .notice {
+    margin-top: 15px;
+    font-size: 13px;
+    color: #ff4444;
+    opacity: 0.9;
+  }
+
+  iframe {
+    width: 95%;
+    height: 95%;
+    border: 3px solid #00ff99;
+    border-radius: 10px;
+    box-shadow: 0 0 30px #00ff99;
+    animation: fadeIn 1s ease;
+  }
+
+  .color-picker-container {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+
+<div class="box" id="container">
+
+  <!-- LOGIN CARD -->
+  <div class="login-card" id="loginCard">
+    <h2>PROJECT72</h2>
+
+    <input type="text" id="username" placeholder="Username" autofocus>
+    <input type="password" id="pass" placeholder="Password">
+    <input type="text" id="roomName" placeholder="Room Name" value="project72">
+    <label><input type="checkbox" id="videoCheckbox" checked> Enable Video</label>
+    <label><input type="checkbox" id="audioCheckbox" checked> Enable Audio</label>
+    <select id="themeSelect">
+      <option value="rainbow">Rainbow Glow</option>
+      <option value="custom">Custom Color</option>
+      <option value="none">No Glow</option>
+    </select>
+
+    <div class="color-picker-container" id="colorPickerContainer" style="display:none;">
+      <label for="glowColor">Glow Color:</label>
+      <input type="color" id="glowColor" value="#00ff99">
+    </div>
+
+    <button onclick="checkLogin()">INITIALIZE</button>
+
+    <p id="error"></p>
+    <p class="notice">Ask site owner for password!</p>
+  </div>
+
+</div>
+
+<script>
+// ===== LOGIN =====
+function checkLogin() {
+  const validPass = "P72"; // change password here
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("pass").value;
+  const roomName = document.getElementById("roomName").value.trim() || "project72";
+  const theme = document.getElementById("themeSelect").value;
+  const videoEnabled = document.getElementById("videoCheckbox").checked;
+  const audioEnabled = document.getElementById("audioCheckbox").checked;
+
+  if (!username) {
+    document.getElementById("error").innerText = "Username required.";
+    return;
+  }
+
+  if (password === validPass) {
+    const encodedName = encodeURIComponent(username);
+    const encodedRoom = encodeURIComponent(roomName);
+
+    // Append video/audio params
+    const videoParam = videoEnabled ? "1" : "0";
+    const audioParam = audioEnabled ? "1" : "0";
+
+    const container = document.getElementById("container");
+    container.innerHTML = `
+      <iframe id="roomIframe"  allow="camera; microphone; speaker-selection; display-capture; fullscreen; clipboard-read; clipboard-write; web-share; autoplay; picture-in-picture"
+        src="https://sfu.mirotalk.com/join/?room=${encodedRoom}&name=${encodedName}&video=${videoParam}&audio=${audioParam}">
+      </iframe>
+      <div class="color-picker-container" id="colorPickerContainer">
+        <label for="glowColor">Glow Color:</label>
+        <input type="color" id="glowColor" value="#00ff99">
+      </div>
+    `;
+
+    const iframe = document.getElementById("roomIframe");
+    const colorPicker = document.getElementById("glowColor");
+    const colorContainer = document.getElementById("colorPickerContainer");
+
+    // Glow theme logic (same as before)
+    if(theme === "custom") {
+      colorContainer.style.display = "flex";
+      iframe.style.borderColor = colorPicker.value;
+      iframe.style.boxShadow = `0 0 30px ${colorPicker.value}`;
+      colorPicker.addEventListener("input", () => {
+        const color = colorPicker.value;
+        iframe.style.borderColor = color;
+        iframe.style.boxShadow = `0 0 30px ${color}`;
+      });
+    } else if(theme === "rainbow") {
+      colorContainer.style.display = "none";
+      let hue = 0;
+      setInterval(() => {
+        hue = (hue + 1) % 360;
+        const color = `hsl(${hue}, 100%, 50%)`;
+        iframe.style.borderColor = color;
+        iframe.style.boxShadow = `0 0 30px ${color}`;
+      }, 30);
+    } else {
+      colorContainer.style.display = "none";
+      iframe.style.borderColor = "transparent";
+      iframe.style.boxShadow = "none";
+    }
+
+  } else {
+    document.getElementById("error").innerText = "ACCESS DENIED.";
+  }
+}
+
+// Enter key support
+document.getElementById("username").addEventListener("keyup", e => { if(e.key==="Enter") checkLogin(); });
+document.getElementById("pass").addEventListener("keyup", e => { if(e.key==="Enter") checkLogin(); });
+document.getElementById("roomName").addEventListener("keyup", e => { if(e.key==="Enter") checkLogin(); });
+
+// Show/hide color picker based on dropdown
+document.getElementById("themeSelect").addEventListener("change", e => {
+  const picker = document.getElementById("colorPickerContainer");
+  picker.style.display = e.target.value === "custom" ? "flex" : "none";
+});
+
+// ===== PARTICLE BACKGROUND =====
+const canvas = document.getElementById("particles");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particlesArray = [];
+
+class Particle {
+  constructor() {
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height;
+    this.size = Math.random() * 2 + 1;
+    this.speedX = (Math.random()-0.5)*0.5;
+    this.speedY = (Math.random()-0.5)*0.5;
+  }
+  update() {
+    this.x += this.speedX;
+    this.y += this.speedY;
+    if(this.x>canvas.width) this.x=0;
+    if(this.x<0) this.x=canvas.width;
+    if(this.y>canvas.height) this.y=0;
+    if(this.y<0) this.y=canvas.height;
+  }
+  draw() {
+    ctx.fillStyle = "#00ff99";
+    ctx.beginPath();
+    ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+    ctx.fill();
+  }
+}
+
+function initParticles(){
+  particlesArray=[];
+  for(let i=0;i<150;i++){
+    particlesArray.push(new Particle());
+  }
+}
+
+function animateParticles(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particlesArray.forEach(p=>{
+    p.update();
+    p.draw();
+  });
+  requestAnimationFrame(animateParticles);
+}
+
+window.addEventListener("resize",()=>{
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  initParticles();
+});
+
+initParticles();
+animateParticles();
+</script>
+
+</body>
+</html>
